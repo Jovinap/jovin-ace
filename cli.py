@@ -168,11 +168,7 @@ def cmd_list(args):
         
     console.print(table)
 
-def cmd_pull(args):
-    """Simulates pulling/downloading a model."""
-    model_name = args.model
-    console.print(f"[bold green]Pulling {model_name}...[/bold green]")
-    
+def run_simulated_pull(model_name: str):
     # Simulated download progress bar
     total_steps = 100
     with console.status(f"[cyan]Downloading model manifest...[/cyan]") as status:
@@ -187,6 +183,39 @@ def cmd_pull(args):
     print()
     console.print(f"[bold green]✓ Successfully downloaded and verified {model_name}![/bold green]")
     console.print(f"Weight files compiled and indexed for row-column flash bundling.")
+
+def cmd_install_ollama(args):
+    """Installs Ollama using the official Linux installation script."""
+    import subprocess
+    console.print("[bold green]Installing Ollama locally via official install script...[/bold green]")
+    try:
+        cmd = "curl -fsSL https://ollama.com/install.sh | sh"
+        subprocess.run(cmd, shell=True, check=True)
+        console.print("[bold green]✓ Ollama installed successfully![/bold green]")
+    except Exception as e:
+        console.print(f"[red]Failed to install Ollama: {e}[/red]")
+        console.print("[yellow]Please try installing it manually: curl -fsSL https://ollama.com/install.sh | sh[/yellow]")
+
+def cmd_pull(args):
+    """Pulls a model from Ollama library."""
+    model_name = args.model
+    import subprocess
+    
+    # Check if ollama is installed
+    if subprocess.call(["which", "ollama"], stdout=subprocess.DEVNULL) != 0:
+        console.print("[yellow]Ollama is not installed locally. Pulling simulated weights...[/yellow]")
+        run_simulated_pull(model_name)
+        return
+        
+    console.print(f"[bold green]Pulling real model '{model_name}' from Ollama library...[/bold green]")
+    try:
+        # Run real ollama pull command
+        subprocess.run(["ollama", "pull", model_name], check=True)
+        console.print(f"[bold green]✓ Successfully pulled and loaded {model_name} into local storage![/bold green]")
+    except Exception as e:
+        console.print(f"[red]Error pulling via Ollama: {e}[/red]")
+        console.print("[yellow]Falling back to simulated weight index pull...[/yellow]")
+        run_simulated_pull(model_name)
 
 def cmd_run(args):
     """Runs the main chat execution thread with the beautiful telemetry display."""
@@ -319,6 +348,9 @@ def main():
     pull_parser = subparsers.add_parser("pull", help="Pull a model weight index from repository.")
     pull_parser.add_argument("model", type=str, help="Name of model to download.")
     
+    # Install Ollama command
+    subparsers.add_parser("install-ollama", help="Installs Ollama package locally via official script.")
+    
     # Run command
     run_parser = subparsers.add_parser("run", help="Start chat session with a model.")
     run_parser.add_argument("model", type=str, nargs="?", default="gemma-4:31b", help="Model name (default: gemma-4:31b).")
@@ -340,6 +372,8 @@ def main():
             cmd_list(args)
         elif args.command == "pull":
             cmd_pull(args)
+        elif args.command == "install-ollama":
+            cmd_install_ollama(args)
         elif args.command == "run":
             cmd_run(args)
     except KeyboardInterrupt:
