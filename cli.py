@@ -256,7 +256,7 @@ def cmd_run(args):
             
             accumulated_response = ""
             
-            with Live(layout, console=console, refresh_rate=15, screen=True) as live:
+            with Live(layout, console=console, refresh_per_second=15, screen=True) as live:
                 # Stream tokens
                 for step in engine.simulate_token_generation(prompt):
                     accumulated_response = step["accumulated_text"]
