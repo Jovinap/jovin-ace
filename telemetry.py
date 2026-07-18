@@ -79,7 +79,7 @@ class JovinAceTelemetry:
 
     def update_model_info(self, layout: Layout, stats: Dict[str, Any]):
         """Renders model loading stats and architecture specifications."""
-        table = Table.minimal_double_header(show_header=False, expand=True)
+        table = Table(show_header=False, expand=True, box=None)
         table.add_row(Text("Model Name:", style="bold yellow"), Text(stats.get("model_name", "Gemma-4-31B"), style="yellow"))
         table.add_row(Text("Parameter Count:", style="dim white"), Text(f"{stats.get('params_b', 31.0)} Billion", style="white"))
         table.add_row(Text("Attention in RAM:", style="dim white"), Text(f"{stats.get('attn_gb', 5.2)} GB", style="green"))
@@ -90,7 +90,7 @@ class JovinAceTelemetry:
 
     def update_performance(self, layout: Layout, stats: Dict[str, Any]):
         """Renders live performance dials and read statistics."""
-        table = Table.minimal_double_header(show_header=False, expand=True)
+        table = Table(show_header=False, expand=True, box=None)
         
         # Generation Speed
         tps = stats.get("tps", 0.0)
