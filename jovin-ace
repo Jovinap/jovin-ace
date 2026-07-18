@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Entry point wrapper for Jovin Ace CLI
+# Entry point wrapper for Jovin Ace CLI - Symlink safe version
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve the absolute path of this script, even if it is a symlink
+REAL_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "${REAL_PATH}")"
+
 python3 "${SCRIPT_DIR}/cli.py" "$@"
